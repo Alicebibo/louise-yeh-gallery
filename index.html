@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Louise Yeh 線上個展：鉛筆素描與水彩作品。">
+<meta property="og:title" content="Louise Yeh 線上畫展">
+<meta property="og:description" content="鉛筆與水彩記下的日常。">
+<meta property="og:image" content="works/002-courtyard-framed.jpg">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Louise Yeh 線上畫展</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400;1,6..96,500&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;700&display=swap">
+<style>
+/* Layout: a single gallery corridor. Each work hangs on its own lit wall bay, its wall label beside it; one lightbox for close viewing. */
+:root{
+  --wall:#e6e8e1; --wall-lit:#f3f4ef; --ink:#23261f; --muted:#666b5f; --accent:#86683a;
+  --card:#fafaf6; --line:#cdd1c4; --shade:rgba(30,34,26,.28);
+  --frame:#3a2c20; --frame-hi:#5b4633; --mat:#fbfaf5; --dim:rgba(16,18,15,.94);
+  --f-display:"Bodoni Moda","Noto Serif TC",Georgia,serif;
+  --f-cjk:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --wall:#1b1e1c; --wall-lit:#2a2e2a; --ink:#ebe9e1; --muted:#a1a59a; --accent:#cfae70;
+  --card:#242825; --line:#3a3f39; --shade:rgba(0,0,0,.6); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --wall:#1b1e1c; --wall-lit:#2a2e2a; --ink:#ebe9e1; --muted:#a1a59a; --accent:#cfae70;
+  --card:#242825; --line:#3a3f39; --shade:rgba(0,0,0,.6); color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--wall);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:clamp(16px,4vw,48px)}
+
+/* Entrance */
+header.entrance{padding-block:clamp(48px,9vw,112px) clamp(28px,5vw,56px);display:grid;gap:22px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+h1{margin:0;font-family:var(--f-display);font-style:italic;font-weight:400;font-size:clamp(56px,11vw,132px);line-height:.92;letter-spacing:-.02em;text-wrap:balance}
+.lede{margin:0;max-width:34em;font-family:var(--f-cjk);font-weight:500;font-size:clamp(17px,2vw,20px);color:var(--ink)}
+.facts{display:flex;flex-wrap:wrap;gap:8px 28px;margin:0;padding:16px 0 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.facts div{display:flex;gap:10px;align-items:baseline}
+.facts dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.facts dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* Floor plan / index */
+nav.plan{display:flex;gap:12px;overflow-x:auto;padding-block:4px 8px;scrollbar-width:thin}
+nav.plan a{flex:0 0 auto;display:grid;grid-template-columns:52px auto;gap:12px;align-items:center;padding:8px 14px 8px 8px;border:1px solid var(--line);border-radius:3px;background:var(--card);color:var(--ink);text-decoration:none;font-size:14px}
+nav.plan a:hover{border-color:var(--accent)}
+nav.plan a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+nav.plan img{width:52px;height:52px;object-fit:cover;border-radius:2px}
+nav.plan .no{display:block;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+
+/* Wall bays */
+.room{display:grid;gap:clamp(24px,6vw,72px);padding-block:clamp(32px,6vw,72px)}
+.bay{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:clamp(24px,4vw,56px);align-items:end;padding:clamp(28px,6vw,80px) clamp(16px,4vw,56px);border-radius:4px;
+  background:radial-gradient(ellipse 60% 70% at 42% 30%,var(--wall-lit),transparent 72%);scroll-margin-top:24px}
+.bay + .bay::before{content:"";position:absolute;top:calc(-1 * clamp(12px,3vw,36px));left:20%;right:20%;height:1px;background:var(--line)}
+.hang{display:flex;justify-content:center;min-width:0}
+.frame{display:block;padding:0;border:0;background:none;cursor:zoom-in;max-width:100%;
+  border:clamp(8px,1.1vw,14px) solid var(--frame);
+  border-top-color:var(--frame-hi);border-left-color:#4a3828;
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 22px 40px -12px var(--shade),0 6px 12px -6px var(--shade)}
+.frame:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.mat{display:block;background:var(--mat);padding:clamp(14px,3.4vw,44px);box-shadow:inset 2px 3px 6px rgba(0,0,0,.22)}
+.mat img{display:block;max-width:100%;height:auto;max-height:68vh;width:auto;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.bay.portrait .mat img{max-height:74vh}
+
+/* Wall label (cartel) */
+.cartel{min-width:0;background:var(--card);padding:18px 20px 20px;border-radius:2px;box-shadow:0 2px 6px -3px var(--shade);display:grid;gap:4px;align-self:end}
+.cartel .no{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--accent)}
+.cartel .artist{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.cartel h2{margin:2px 0 0;font-family:var(--f-cjk);font-weight:700;font-size:22px;line-height:1.35;text-wrap:balance}
+.cartel .en{font-family:var(--f-display);font-style:italic;font-size:17px;line-height:1.35;color:var(--ink)}
+.cartel .meta{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cartel .note{font-size:14px;line-height:1.75;margin-top:6px}
+.cartel button{justify-self:start;margin-top:10px;font:inherit;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:2px;padding:5px 12px;cursor:pointer}
+.cartel button:hover{border-color:var(--accent);color:var(--accent)}
+.cartel button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+@media (max-width:760px){
+  .bay{grid-template-columns:minmax(0,1fr);padding-inline:0;background:radial-gradient(ellipse 80% 55% at 50% 30%,var(--wall-lit),transparent 75%)}
+  .cartel{justify-self:center;width:min(100%,360px)}
+  .mat img{max-height:none}
+}
+
+footer{padding-block:40px 64px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
+/* Lightbox — always dark, like stepping close in a dim room */
+dialog.lb{width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;background:var(--dim);color:#ece9e0;color-scheme:dark}
+dialog.lb::backdrop{background:var(--dim)}
+.lb-in{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 14px)}
+.lb-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid rgba(255,255,255,.25);border-radius:3px;overflow:hidden}
+.seg button{font:inherit;font-size:13px;padding:6px 14px;background:transparent;color:#ece9e0;border:0;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#ece9e0;color:#161815}
+.iconbtn{font:inherit;font-size:14px;background:transparent;color:#ece9e0;border:1px solid rgba(255,255,255,.25);border-radius:3px;padding:6px 14px;cursor:pointer}
+.lb button:focus-visible{outline:2px solid #cfae70;outline-offset:2px}
+.lb-stage{min-height:0;display:flex;align-items:center;justify-content:center;padding-block:14px}
+.lb-stage img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb-foot{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+.lb-cap{text-align:center;min-width:0}
+.lb-cap b{font-family:var(--f-cjk);font-weight:700;font-size:17px}
+.lb-cap span{display:block;font-size:13px;color:#b5b2a8}
+@media (prefers-reduced-motion:no-preference){
+  .frame{transition:transform .35s ease, box-shadow .35s ease}
+  .frame:hover{transform:translateY(-3px)}
+  .lb-stage img{animation:fadein .3s ease}
+  @keyframes fadein{from{opacity:.4}to{opacity:1}}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="entrance">
+    <div class="eyebrow">線上個展 · Online Exhibition</div>
+    <h1>Louise Yeh</h1>
+    <p class="lede">鉛筆與水彩記下的日常：桌上的一只茶壺，庭院裡的一棵樹。展覽會隨新作持續增加。</p>
+    <dl class="facts">
+      <div><dt>Works</dt><dd id="f-count">—</dd></div>
+      <div><dt>Media</dt><dd id="f-media">—</dd></div>
+      <div><dt>Dates</dt><dd id="f-dates">—</dd></div>
+    </dl>
+    <nav class="plan" id="plan" aria-label="展出作品索引"></nav>
+  </header>
+
+  <main class="room" id="room" aria-label="展廳"></main>
+
+  <footer>
+    <span>© <span id="yr">2026</span> Louise Yeh · 作品版權屬藝術家所有</span>
+    <span>點選畫作可放大欣賞，並切換原作與裱框樣貌</span>
+  </footer>
+</div>
+
+<dialog class="lb" id="lb" aria-label="作品檢視">
+  <div class="lb-in">
+    <div class="lb-top">
+      <div class="seg" role="group" aria-label="檢視方式">
+        <button type="button" id="v-art" aria-pressed="true">原作</button>
+        <button type="button" id="v-frame" aria-pressed="false">裱框</button>
+      </div>
+      <button type="button" class="iconbtn" id="lb-close">關閉 ✕</button>
+    </div>
+    <div class="lb-stage"><img id="lb-img" alt=""></div>
+    <div class="lb-foot">
+      <button type="button" class="iconbtn" id="lb-prev" aria-label="上一件">←</button>
+      <div class="lb-cap"><b id="lb-title"></b><span id="lb-meta"></span></div>
+      <button type="button" class="iconbtn" id="lb-next" aria-label="下一件">→</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- 作品清單：新增作品時在此加一筆，圖片放在 works/ -->
+<script type="application/json" id="works">
+[
+  {
+    "no": 1,
+    "title": "茶壺",
+    "titleEn": "Teapot",
+    "date": "2026.10.11",
+    "medium": "鉛筆素描",
+    "mediumEn": "Graphite on paper",
+    "image": "works/001-teapot.jpg",
+    "framed": "works/001-teapot-framed.jpg",
+    "w": 1800, "h": 1135,
+    "note": ""
+  },
+  {
+    "no": 2,
+    "title": "樹下庭院",
+    "titleEn": "Under the Courtyard Tree",
+    "date": "2026.10.12",
+    "medium": "水彩",
+    "mediumEn": "Watercolor on paper",
+    "image": "works/002-courtyard.jpg",
+    "framed": "works/002-courtyard-framed.jpg",
+    "w": 1137, "h": 1800,
+    "note": ""
+  }
+]
+</script>
+
+<script>
+(function(){
+  const works = JSON.parse(document.getElementById('works').textContent)
+    .sort((a,b)=>a.no-b.no);
+  const pad = n => String(n).padStart(2,'0');
+  const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // facts
+  document.getElementById('f-count').textContent = works.length + ' 件';
+  document.getElementById('f-media').textContent = [...new Set(works.map(w=>w.medium))].join('、');
+  const ds = works.map(w=>w.date).sort();
+  document.getElementById('f-dates').textContent = ds.length ? (ds[0]===ds[ds.length-1] ? ds[0] : ds[0]+' — '+ds[ds.length-1]) : '—';
+  document.getElementById('yr').textContent = ds.length ? ds[ds.length-1].slice(0,4) : '2026';
+
+  // index
+  document.getElementById('plan').innerHTML = works.map(w=>`
+    <a href="#no-${pad(w.no)}"><img src="${esc(w.image)}" alt="" loading="lazy"><span><span class="no">No.${pad(w.no)}</span>${esc(w.title)}</span></a>`).join('');
+
+  // wall bays
+  document.getElementById('room').innerHTML = works.map((w,i)=>`
+    <section class="bay ${w.h>w.w?'portrait':''}" id="no-${pad(w.no)}" aria-labelledby="t-${w.no}">
+      <div class="hang">
+        <button type="button" class="frame" data-i="${i}" aria-label="放大檢視 ${esc(w.title)}">
+          <span class="mat"><img src="${esc(w.image)}" width="${w.w}" height="${w.h}" alt="${esc(w.title)}，${esc(w.medium)}，Louise Yeh 作" ${i>0?'loading="lazy"':''}></span>
+        </button>
+      </div>
+      <aside class="cartel">
+        <span class="no">No.${pad(w.no)}</span>
+        <span class="artist">Louise Yeh</span>
+        <h2 id="t-${w.no}">${esc(w.title)}</h2>
+        ${w.titleEn?`<span class="en">${esc(w.titleEn)}</span>`:''}
+        <div class="meta">${esc(w.date)}<br>${esc(w.medium)}${w.mediumEn?' · '+esc(w.mediumEn):''}</div>
+        ${w.note?`<p class="note">${esc(w.note)}</p>`:''}
+        ${w.framed?`<button type="button" data-i="${i}" data-view="frame">看裱框樣貌</button>`:''}
+      </aside>
+    </section>`).join('');
+
+  // lightbox
+  const lb=document.getElementById('lb'), img=document.getElementById('lb-img');
+  const bArt=document.getElementById('v-art'), bFr=document.getElementById('v-frame');
+  let cur=0, view='art';
+  function show(){
+    const w=works[cur];
+    if(!w.framed) view='art';
+    bFr.disabled=!w.framed;
+    img.src = view==='frame' ? w.framed : w.image;
+    img.alt = w.title + (view==='frame'?'（裱框）':'');
+    bArt.setAttribute('aria-pressed', view==='art');
+    bFr.setAttribute('aria-pressed', view==='frame');
+    document.getElementById('lb-title').textContent = 'No.'+pad(w.no)+'　'+w.title+(w.titleEn?'  '+w.titleEn:'');
+    document.getElementById('lb-meta').textContent = w.date+' · '+w.medium+(w.mediumEn?' · '+w.mediumEn:'');
+  }
+  function open(i,v){ cur=i; view=v||'art'; show(); if(!lb.open){ try{lb.showModal()}catch(e){lb.setAttribute('open','')} } }
+  function step(d){ cur=(cur+d+works.length)%works.length; show(); }
+  document.getElementById('room').addEventListener('click',e=>{
+    const t=e.target.closest('[data-i]'); if(t) open(+t.dataset.i, t.dataset.view);
+  });
+  bArt.onclick=()=>{view='art';show()};
+  bFr.onclick=()=>{view='frame';show()};
+  document.getElementById('lb-prev').onclick=()=>step(-1);
+  document.getElementById('lb-next').onclick=()=>step(1);
+  document.getElementById('lb-close').onclick=()=>lb.close();
+  lb.addEventListener('click',e=>{ if(e.target.classList.contains('lb-stage')) lb.close(); });
+  lb.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft') step(-1);
+    if(e.key==='ArrowRight') step(1);
+  });
+  let sx=null;
+  lb.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
+  lb.addEventListener('touchend',e=>{ if(sx===null) return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>50) step(dx<0?1:-1); sx=null; });
+})();
+</script>
+
+</body>
+</html>
