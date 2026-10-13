@@ -258,3 +258,12 @@ dialog.lb::backdrop{background:var(--dim)}
 
 </body>
 </html>
+<style>
+:root{--on-accent:#ffffff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--on-accent:#1b1e1c}}
+:root[data-theme="dark"]{--on-accent:#1b1e1c}
+.cartel button{justify-self:stretch;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:11px 16px;font-size:15px;font-weight:500;letter-spacing:.04em;color:var(--on-accent);background:var(--accent);border:0;border-radius:3px;box-shadow:0 3px 10px -3px var(--shade);transition:filter .2s ease, transform .2s ease}
+.cartel button::after{content:"→";font-size:16px;transition:transform .2s ease}
+.cartel button:hover{color:var(--on-accent);filter:brightness(1.1);transform:translateY(-1px)}
+.cartel button:hover::after{transform:translateX(3px)}
+</style>
