@@ -132,6 +132,23 @@ dialog.lb::backdrop{background:var(--dim)}
 .music[aria-pressed="true"] .bars{display:flex}
 @media (prefers-reduced-motion:no-preference){.music[aria-pressed="true"] .bars i{animation:eq 1.1s ease-in-out infinite}.music .bars i:nth-child(2){animation-delay:.2s}.music .bars i:nth-child(3){animation-delay:.45s}@keyframes eq{0%,100%{height:3px}50%{height:12px}}}
 @media (max-width:480px){.music .lbl small{display:none}}
+/* ---------- Motion ---------- */
+:root{--grain-op:.07;--grain-blend:multiply}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--grain-op:.05;--grain-blend:screen}}
+:root[data-theme="dark"]{--grain-op:.05;--grain-blend:screen}
+.grain{position:fixed;inset:-50%;width:200%;height:200%;pointer-events:none;z-index:30;opacity:var(--grain-op);mix-blend-mode:var(--grain-blend);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.rule{display:block;width:min(420px,72%);height:14px;margin-top:-6px;overflow:visible}
+.rule path{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.bay{background:radial-gradient(ellipse 60% 70% at var(--mx,42%) var(--my,30%),var(--wall-lit),transparent 72%)}
+.featured{background:radial-gradient(ellipse 70% 80% at var(--mx,35%) var(--my,40%),var(--wall-lit),transparent 75%),var(--card)}
+.mat{overflow:hidden}
+.hang{perspective:1200px}
+html.motion .frame{transition:none}
+html.motion .frame:hover{transform:none}
+html.motion-pending .entrance > *, html.motion-pending #featured{visibility:hidden}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media (max-width:760px){.bay{background:radial-gradient(ellipse 80% 55% at 50% 30%,var(--wall-lit),transparent 75%)}}
+
 .music.nudge{border-color:var(--accent)}
 @media (prefers-reduced-motion:no-preference){.music.nudge .disc{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--accent)}50%{box-shadow:0 0 0 8px transparent}}}
 footer{padding-bottom:96px}
@@ -164,10 +181,16 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
 
 </head>
 <body>
+<script>
+// 動態效果：先暫時藏住頁首，等動畫開始；3 秒內沒開始就直接顯示
+(function(){try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){var d=document.documentElement;d.classList.add('motion','motion-pending');setTimeout(function(){d.classList.remove('motion-pending')},3000);}}catch(e){}})();
+</script>
+<div class="grain" aria-hidden="true"></div>
 <div class="wrap">
   <header class="entrance">
     <div class="eyebrow">線上個展 · Online Exhibition</div>
     <h1>Louise Yeh</h1>
+    <svg class="rule" viewBox="0 0 600 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 C 140 3, 320 13, 598 6"/></svg>
     <p class="lede">用鉛筆、水彩與代針筆，記下日常與旅途中的風景。新作品會陸續加入展出，歡迎常回來逛逛。</p>
     <dl class="facts">
       <div><dt>Works</dt><dd id="f-count">—</dd></div>
@@ -387,6 +410,74 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
       evs.forEach(t=>document.addEventListener(t,go,true));
     });
   }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
+<script>
+(function(){
+  const root=document.documentElement;
+  const reveal=()=>root.classList.remove('motion-pending');
+  if(!window.gsap || matchMedia('(prefers-reduced-motion: reduce)').matches){ reveal(); root.classList.remove('motion'); return; }
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  const rulePath=document.querySelector('.rule path');
+  const len=rulePath ? rulePath.getTotalLength() : 0;
+
+  // 1. 開場：畫家名逐字升起、金線描繪、內容依序浮現、最新作品像揭幕一樣展開
+  function intro(){
+    reveal();
+    const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+    tl.from('.entrance .eyebrow',{y:12,autoAlpha:0,duration:.6});
+    const h1=document.querySelector('.entrance h1');
+    if(h1 && window.SplitText){
+      const split=SplitText.create(h1,{type:'chars',mask:'chars'});
+      (split.masks||[]).forEach(m=>{m.style.paddingBottom='.18em';m.style.marginBottom='-.18em';m.style.paddingRight='.1em';m.style.marginRight='-.1em';});
+      tl.from(split.chars,{yPercent:115,duration:1,stagger:.05,ease:'power4.out'},'-=.3');
+    }
+    if(rulePath) tl.fromTo(rulePath,{strokeDasharray:len,strokeDashoffset:len},{strokeDashoffset:0,duration:1.3,ease:'power2.inOut'},'-=.6');
+    tl.from('.entrance .lede',{y:16,autoAlpha:0,duration:.7},'-=1')
+      .from('.facts > div, nav.plan a',{y:14,autoAlpha:0,duration:.5,stagger:.06},'-=.5')
+      .from('#featured .frame',{clipPath:'inset(100% 0% 0% 0%)',duration:1.3,ease:'power4.inOut'},'-=.4')
+      .from('#featured .mat img',{scale:1.14,duration:1.8,ease:'power2.out'},'<')
+      .from('#featured .ft-text > *',{y:18,autoAlpha:0,duration:.6,stagger:.08},'-=1.2');
+  }
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(intro);
+
+  // 2. 捲動：每件作品進入畫面時，畫框由上往下揭開、說明卡依序浮現
+  gsap.from('.section-title',{scrollTrigger:{trigger:'.section-title',start:'top 85%',once:true},x:-24,autoAlpha:0,duration:.8,ease:'power3.out'});
+  gsap.utils.toArray('.room .bay').forEach(b=>{
+    const tl=gsap.timeline({scrollTrigger:{trigger:b,start:'top 78%',once:true},defaults:{ease:'power3.out'}});
+    tl.from(b.querySelector('.frame'),{clipPath:'inset(0% 0% 100% 0%)',duration:1.2,ease:'power4.inOut'})
+      .from(b.querySelector('.mat img'),{scale:1.12,duration:1.6,ease:'power2.out'},'<')
+      .from(b.querySelectorAll('.cartel > *'),{y:14,autoAlpha:0,duration:.5,stagger:.06},'-=.8');
+  });
+
+  // 3. 最新作品輕微視差
+  gsap.to('#featured .mat img',{yPercent:-4,ease:'none',scrollTrigger:{trigger:'#featured',start:'top bottom',end:'bottom top',scrub:true}});
+
+  // 4. 滑鼠：牆面聚光燈跟著移動、畫框微微傾斜浮起（只在有滑鼠的裝置）
+  if(matchMedia('(hover: hover) and (pointer: fine)').matches){
+    document.querySelectorAll('.bay, .featured').forEach(sec=>{
+      sec.addEventListener('pointermove',e=>{
+        const r=sec.getBoundingClientRect();
+        sec.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
+        sec.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
+      });
+      sec.addEventListener('pointerleave',()=>{ sec.style.removeProperty('--mx'); sec.style.removeProperty('--my'); });
+    });
+    document.querySelectorAll('.frame').forEach(f=>{
+      const rx=gsap.quickTo(f,'rotationX',{duration:.6,ease:'power3'}), ry=gsap.quickTo(f,'rotationY',{duration:.6,ease:'power3'}), yy=gsap.quickTo(f,'y',{duration:.6,ease:'power3'});
+      f.addEventListener('pointermove',e=>{ const r=f.getBoundingClientRect(); const px=(e.clientX-r.left)/r.width-.5, py=(e.clientY-r.top)/r.height-.5; ry(px*6); rx(-py*6); yy(-6); });
+      f.addEventListener('pointerleave',()=>{ rx(0); ry(0); yy(0); });
+    });
+  }
+
+  // 5. 放大檢視：換圖時柔和縮放淡入
+  const lbImg=document.getElementById('lb-img');
+  if(lbImg) lbImg.addEventListener('load',()=>gsap.fromTo(lbImg,{autoAlpha:0,scale:.96},{autoAlpha:1,scale:1,duration:.5,ease:'power2.out'}));
+
+  window.addEventListener('load',()=>ScrollTrigger.refresh());
 })();
 </script>
 </body>
