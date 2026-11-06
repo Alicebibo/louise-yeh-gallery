@@ -66,7 +66,7 @@ Alice 通常會傳一張畫作照片，有時附上實景照片。
 - 曲目：Erik Satie〈Gymnopédie No.1〉，Robin Alciatore 演奏，來源 Musopen，在 Wikimedia Commons 標示為公眾領域。
 - 檔案：`music/satie-gymnopedie-1.mp3`（Wikimedia 連結保留為第二個備援 `<source>`）。
 - 行為：預設嘗試自動播放，從 0 淡入到約 35% 音量。瀏覽器擋自動播放時，右下角按鈕顯示「點一下開啟音樂」，訪客第一次點擊／觸控／按鍵就開始播放。訪客按「暫停音樂」後會記在 localStorage（`bgm-off`），下次不再自動播放。
-- 頁尾有音樂出處說明，換曲時要一併更新。換曲只能用公眾領域或明確允許的授權錄音。
+- 依 Alice 要求，網頁上不顯示音樂出處（公眾領域錄音不需標示）；出處記錄在 README.md。換曲只能用公眾領域或明確允許的授權錄音。
 
 ## 部署
 
