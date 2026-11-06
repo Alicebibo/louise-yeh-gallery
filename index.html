@@ -148,7 +148,7 @@ html.motion .frame:hover{transform:none}
 html.motion-pending .entrance > *, html.motion-pending #featured{visibility:hidden}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 /* ---------- Background motion: drifting watercolor washes + dust in the light ---------- */
-.bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;filter:blur(20px) saturate(1.08);transform:scale(1.08);mix-blend-mode:var(--grain-blend)}
 .wrap{position:relative;z-index:1}
 
 @media (max-width:760px){.bay{background:radial-gradient(ellipse 80% 55% at 50% 30%,var(--wall-lit),transparent 75%)}}
@@ -485,109 +485,73 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
 })();
 </script>
 <script>
-// 背景動態：像水彩暈染的柔和色塊緩慢漂移，加上投射燈光裡漂浮的細微光塵
+// 背景動態：濕中濕水彩暈染。顏料在紙上緩慢擴散、交融，邊緣有水彩乾掉時的深色水痕；
+// 顏料集中在畫面四周，中間留白讓作品與文字保持清楚。
 (function(){
   const cv=document.createElement('canvas'); cv.className='bg-canvas'; cv.setAttribute('aria-hidden','true');
   document.body.insertBefore(cv, document.body.firstChild);
   const ctx=cv.getContext('2d');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let W=0,H=0,dpr=1;
-  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const isDark=()=>{ const c=css('--wall'); const m=c.match(/#([0-9a-f]{2})/i); return m ? parseInt(m[1],16)<100 : false; };
-  const hex=(h,a)=>{ h=h.replace('#',''); if(h.length===3) h=h.split('').map(x=>x+x).join(''); const n=parseInt(h,16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
-  // 色票取自畫作：古銅金、天空藍、葉子綠、楓紅
-  const palette=()=>[css('--accent')||'#86683a','#7fa8c4','#9fb38a','#c98a7a'];
-  const blobs=Array.from({length:7},(_,i)=>({x:Math.random(),y:Math.random(),r:.20+Math.random()*.18,
-    vx:(Math.random()-.5)*.00034,vy:(Math.random()-.5)*.00028,ph:Math.random()*6.28,c:i%4}));
-  const motes=Array.from({length:90},()=>({x:Math.random(),y:Math.random(),s:1+Math.random()*2.2,
-    v:.00008+Math.random()*.0002,dr:(Math.random()-.5)*.00006,ph:Math.random()*6.28}));
-  function size(){ dpr=Math.min(window.devicePixelRatio||1,1.5); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
-  size(); addEventListener('resize',size);
-  // 水彩筆觸：一筆一筆慢慢「畫」出來，停留一下再淡去，換個位置重畫
-  const STROKE_COLORS=['#86683a','#5f8fb0','#7f9a63','#b86a58','#8a6f9e'];
-  function newStroke(delay){
-    const len=Math.min(W,H)*(.45+Math.random()*.4), ang=(Math.random()-.5)*1.1+(Math.random()<.5?0:Math.PI);
-    const x0=Math.random()*W, y0=Math.random()*H;
-    const x3=x0+Math.cos(ang)*len, y3=y0+Math.sin(ang)*len*.6;
-    const bend=()=>(Math.random()-.5)*len*.7;
-    const pad=60, maxW=14+Math.random()*26;
-    const pts=[[x0,y0],[x0+(x3-x0)*.33+bend(),y0+(y3-y0)*.33+bend()],[x0+(x3-x0)*.66+bend(),y0+(y3-y0)*.66+bend()],[x3,y3]];
-    const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
-    const bx=Math.min(...xs)-maxW-pad, by=Math.min(...ys)-maxW-pad, bw=Math.max(...xs)-bx+maxW+pad, bh=Math.max(...ys)-by+maxW+pad;
-    const oc=document.createElement('canvas'); oc.width=Math.ceil(bw); oc.height=Math.ceil(bh);
-    return {pts,bx,by,oc,o:oc.getContext('2d'),maxW,color:STROKE_COLORS[Math.floor(Math.random()*STROKE_COLORS.length)],
-      t:0,drawMs:2600+Math.random()*2200,hold:2200+Math.random()*1800,fadeMs:2600,age:-(delay||0),alpha:1,seed:Math.random()*100};
-  }
-  function bez(p,t){ const u=1-t; return [u*u*u*p[0][0]+3*u*u*t*p[1][0]+3*u*t*t*p[2][0]+t*t*t*p[3][0], u*u*u*p[0][1]+3*u*u*t*p[1][1]+3*u*t*t*p[2][1]+t*t*t*p[3][1]]; }
-  function paint(s,t0,t1){
-    const o=s.o, steps=Math.max(2,Math.ceil((t1-t0)*260));
-    for(let i=0;i<=steps;i++){
-      const t=t0+(t1-t0)*i/steps; const [x,y]=bez(s.pts,t); const lx=x-s.bx, ly=y-s.by;
-      const taper=Math.pow(Math.sin(Math.PI*Math.min(.98,Math.max(.02,t))),.55);
-      const w=s.maxW*taper*(.9+.16*Math.sin(t*8+s.seed)+.06*Math.sin(t*31+s.seed));
-      // 顏料主體
-      const g=o.createRadialGradient(lx,ly,0,lx,ly,w);
-      g.addColorStop(0,hex(s.color,.05)); g.addColorStop(.7,hex(s.color,.045)); g.addColorStop(1,hex(s.color,0));
-      o.fillStyle=g; o.beginPath(); o.arc(lx,ly,w,0,6.283); o.fill();
-      // 邊緣積色（水彩乾掉時邊緣較深）
-      if(i%2===0){ const a=Math.random()*6.283, r=w*(.75+Math.random()*.2);
-        o.fillStyle=hex(s.color,.06); o.beginPath(); o.arc(lx+Math.cos(a)*r,ly+Math.sin(a)*r,Math.max(1,w*.12),0,6.283); o.fill(); }
-      // 偶爾的小水滴
-      if(Math.random()<.012){ const a=Math.random()*6.283, r=w*(1.3+Math.random()*1.6);
-        o.fillStyle=hex(s.color,.12); o.beginPath(); o.arc(lx+Math.cos(a)*r,ly+Math.sin(a)*r,1+Math.random()*2.6,0,6.283); o.fill(); }
-    }
-  }
-  let strokes=[];
-  function resetStrokes(){ strokes=[newStroke(0),newStroke(1800),newStroke(4200)]; if(reduce){ strokes.forEach(s=>{ s.age=0; paint(s,0,1); s.t=1; }); } }
-  resetStrokes(); addEventListener('resize',()=>resetStrokes());
-  let last=performance.now(), running=true;
-  function frame(now){
-    const dt=Math.min(64,now-last); last=now;
-    ctx.clearRect(0,0,W,H);
-    const dark=isDark(), pal=palette(), A=dark?.16:.30;
-    const scrollShift=(scrollY||0)*.00008;
-    ctx.globalCompositeOperation=dark?'screen':'multiply';
-    for(const b of blobs){
-      if(!reduce){ b.x+=b.vx*dt; b.y+=b.vy*dt; b.ph+=dt*.0008;
-        if(b.x<-.2||b.x>1.2) b.vx*=-1; if(b.y<-.2||b.y>1.2) b.vy*=-1; }
-      const R=Math.max(W,H)*b.r*(1+.14*Math.sin(b.ph));
-      const cx=b.x*W, cy=(b.y-scrollShift%1)*H;
-      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R);
-      g.addColorStop(0,hex(pal[b.c].startsWith('#')?pal[b.c]:'#86683a',A));
-      g.addColorStop(.55,hex(pal[b.c].startsWith('#')?pal[b.c]:'#86683a',A*.45));
-      g.addColorStop(1,hex('#000000',0));
-      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-    }
-    // 水彩筆觸
-    ctx.globalCompositeOperation=dark?'screen':'multiply';
-    for(let i=0;i<strokes.length;i++){
-      const s=strokes[i];
-      if(!reduce){
-        s.age+=dt; if(s.age<0) continue;
-        const nt=Math.min(1,s.age/s.drawMs); if(nt>s.t){ paint(s,s.t,nt); s.t=nt; }
-        const after=s.age-s.drawMs-s.hold; s.alpha=after>0?Math.max(0,1-after/s.fadeMs):1;
-        if(s.alpha<=0){ strokes[i]=newStroke(400+Math.random()*1200); continue; }
-        // 筆尖
-        if(s.t<1){ const [tx,ty]=bez(s.pts,s.t); ctx.fillStyle=hex(s.color,dark?.35:.25); ctx.beginPath(); ctx.arc(tx,ty,2.2,0,6.283); ctx.fill(); }
+  // 低解析度計算，再放大＋模糊，邊緣自然柔和
+  const LW=200, LH=125;
+  const off=document.createElement('canvas'); off.width=LW; off.height=LH;
+  const octx=off.getContext('2d'); const img=octx.createImageData(LW,LH); const D=img.data;
+  // value noise
+  const P=new Uint8Array(512); { const p=[...Array(256).keys()]; for(let i=255;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]];} for(let i=0;i<512;i++)P[i]=p[i&255]; }
+  const G=new Float32Array(256).map(()=>Math.random());
+  const fade=t=>t*t*(3-2*t);
+  function noise(x,y){ const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi; const X=xi&255, Y=yi&255;
+    const a=G[P[P[X]+Y]], b=G[P[P[X+1]+Y]], c=G[P[P[X]+Y+1]], d=G[P[P[X+1]+Y+1]]; const u=fade(xf), v=fade(yf);
+    return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; }
+  function fbm(x,y){ return .55*noise(x,y)+.28*noise(x*2.03+17.1,y*2.03-9.2)+.17*noise(x*4.07-3.3,y*4.07+5.7); }
+  const isDark=()=>{ const c=getComputedStyle(document.documentElement).getPropertyValue('--wall').trim(); const m=c.match(/#([0-9a-f]{2})/i); return m?parseInt(m[1],16)<100:false; };
+  // 顏料：取自三件作品
+  const LIGHT=[[96,140,176],[134,104,58],[118,148,96],[184,110,92]];   // 天空藍、古銅金、葉綠、楓紅
+  const DARKP=[[120,170,210],[214,178,112],[140,180,120],[214,130,110]];
+  const sm=(a,b,x)=>{ x=Math.min(1,Math.max(0,(x-a)/(b-a))); return x*x*(3-2*x); };
+  function render(t){
+    const dark=isDark(), pal=dark?DARKP:LIGHT, aMax=dark?95:120;
+    const ar=innerWidth/innerHeight;
+    let k=0;
+    for(let j=0;j<LH;j++){ const vy=j/LH;
+      for(let i=0;i<LW;i++){ const vx=i/LW;
+        const x=vx*2.4*ar/1.6, y=vy*2.4;
+        // domain warp：讓顏料像在水裡流動
+        const qx=fbm(x+t*.05,y-t*.03), qy=fbm(x-5.2-t*.04,y+1.3+t*.05);
+        const rx=fbm(x+3.5*qx+1.7+t*.02,y+3.5*qy+9.2), ry=fbm(x+3.5*qx+8.3,y+3.5*qy+2.8-t*.02);
+        const v=fbm(x+3*rx,y+3*ry);
+        // 四周多、中間少
+        const dx=(vx-.5)*1.15, dy=(vy-.5)*1.0, dist=Math.sqrt(dx*dx+dy*dy);
+        const edge=sm(.18,.62,dist);
+        // 顏料覆蓋 + 水痕（邊界處較深）
+        const th=.50, cover=sm(th-.02,th+.10,v), rim=Math.max(0,1-Math.abs(v-th)/.025)*.85;
+        const a=(cover*.55+rim*.6)*edge;
+        // 兩種顏料依流場交融
+        const m1=sm(.35,.65,rx), m2=sm(.35,.65,ry);
+        const c0=pal[0],c1=pal[1],c2=pal[2],c3=pal[3];
+        const r=(c0[0]*(1-m1)+c3[0]*m1)*(1-m2)+(c2[0]*(1-m1)+c1[0]*m1)*m2;
+        const g=(c0[1]*(1-m1)+c3[1]*m1)*(1-m2)+(c2[1]*(1-m1)+c1[1]*m1)*m2;
+        const b=(c0[2]*(1-m1)+c3[2]*m1)*(1-m2)+(c2[2]*(1-m1)+c1[2]*m1)*m2;
+        D[k++]=r; D[k++]=g; D[k++]=b; D[k++]=Math.min(255,a*aMax*2.1);
       }
-      ctx.globalAlpha=s.alpha*(dark?1.4:1.25); ctx.drawImage(s.oc,s.bx,s.by); ctx.globalAlpha=1;
     }
-    ctx.globalCompositeOperation='source-over';
-    const dust=dark?'#e9d9b0':'#9a7a42';
-    for(const m of motes){
-      if(!reduce){ m.y-=m.v*dt; m.x+=m.dr*dt+Math.sin(m.ph)*.00002*dt; m.ph+=dt*.0012;
-        if(m.y<-.02){ m.y=1.02; m.x=Math.random(); } if(m.x<0) m.x=1; if(m.x>1) m.x=0; }
-      const tw=.35+.35*Math.sin(m.ph*1.7);
-      const px=m.x*W, py=m.y*H, al=(dark?.8:.7)*tw;
-      const gl=ctx.createRadialGradient(px,py,0,px,py,m.s*4); gl.addColorStop(0,hex(dust,al*.45)); gl.addColorStop(1,hex(dust,0));
-      ctx.fillStyle=gl; ctx.fillRect(px-m.s*4,py-m.s*4,m.s*8,m.s*8);
-      ctx.fillStyle=hex(dust,al); ctx.beginPath(); ctx.arc(px,py,m.s,0,6.283); ctx.fill();
-    }
-    if(running && !reduce) requestAnimationFrame(frame);
+    octx.putImageData(img,0,0);
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+    ctx.drawImage(off,0,0,cv.width,cv.height);
   }
-  requestAnimationFrame(frame);
-  document.addEventListener('visibilitychange',()=>{ running=!document.hidden; if(running && !reduce){ last=performance.now(); requestAnimationFrame(frame); } });
-  if(reduce) addEventListener('resize',()=>requestAnimationFrame(frame));
+  function size(){ const s=.5; cv.width=Math.round(innerWidth*s); cv.height=Math.round(innerHeight*s); }
+  size(); addEventListener('resize',()=>{ size(); render(t); });
+  let t=Math.random()*50, last=performance.now(), acc=0, running=true;
+  render(t);
+  if(reduce) return;
+  function loop(now){
+    const dt=Math.min(100,now-last); last=now; acc+=dt; t+=dt*.00022;
+    if(acc>=50){ acc=0; render(t); }   // 約 20fps，暈染本來就慢，省電
+    if(running) requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  document.addEventListener('visibilitychange',()=>{ running=!document.hidden; if(running){ last=performance.now(); requestAnimationFrame(loop); } });
 })();
 </script>
 </body>
