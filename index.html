@@ -148,8 +148,9 @@ html.motion .frame:hover{transform:none}
 html.motion-pending .entrance > *, html.motion-pending #featured{visibility:hidden}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 /* ---------- Background motion: drifting watercolor washes + dust in the light ---------- */
-.bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;filter:blur(20px) saturate(1.08);transform:scale(1.08);mix-blend-mode:var(--grain-blend)}
+.bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;filter:blur(18px) saturate(1.15);transform:scale(1.08);mix-blend-mode:var(--grain-blend)}
 .wrap{position:relative;z-index:1}
+.entrance .eyebrow,.entrance .lede,.facts,.section-title,footer{text-shadow:0 0 10px var(--wall),0 0 22px var(--wall)}
 
 @media (max-width:760px){.bay{background:radial-gradient(ellipse 80% 55% at 50% 30%,var(--wall-lit),transparent 75%)}}
 
@@ -509,7 +510,7 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
   const DARKP=[[120,170,210],[214,178,112],[140,180,120],[214,130,110]];
   const sm=(a,b,x)=>{ x=Math.min(1,Math.max(0,(x-a)/(b-a))); return x*x*(3-2*x); };
   function render(t){
-    const dark=isDark(), pal=dark?DARKP:LIGHT, aMax=dark?95:120;
+    const dark=isDark(), pal=dark?DARKP:LIGHT, aMax=dark?125:150;
     const ar=innerWidth/innerHeight;
     let k=0;
     for(let j=0;j<LH;j++){ const vy=j/LH;
@@ -521,10 +522,10 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
         const v=fbm(x+3*rx,y+3*ry);
         // 四周多、中間少
         const dx=(vx-.5)*1.15, dy=(vy-.5)*1.0, dist=Math.sqrt(dx*dx+dy*dy);
-        const edge=sm(.18,.62,dist);
+        const edge=.12+.88*sm(.12,.58,dist);
         // 顏料覆蓋 + 水痕（邊界處較深）
         const th=.50, cover=sm(th-.02,th+.10,v), rim=Math.max(0,1-Math.abs(v-th)/.025)*.85;
-        const a=(cover*.55+rim*.6)*edge;
+        const a=(cover*.72+rim*.85)*edge;
         // 兩種顏料依流場交融
         const m1=sm(.35,.65,rx), m2=sm(.35,.65,ry);
         const c0=pal[0],c1=pal[1],c2=pal[2],c3=pal[3];
@@ -545,7 +546,7 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
   render(t);
   if(reduce) return;
   function loop(now){
-    const dt=Math.min(100,now-last); last=now; acc+=dt; t+=dt*.00022;
+    const dt=Math.min(100,now-last); last=now; acc+=dt; t+=dt*.00055;
     if(acc>=50){ acc=0; render(t); }   // 約 20fps，暈染本來就慢，省電
     if(running) requestAnimationFrame(loop);
   }
