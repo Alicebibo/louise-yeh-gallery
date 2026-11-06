@@ -140,7 +140,7 @@ dialog.lb::backdrop{background:var(--dim)}
 .rule{display:block;width:min(420px,72%);height:14px;margin-top:-6px;overflow:visible}
 .rule path{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;vector-effect:non-scaling-stroke}
 .bay{background:radial-gradient(ellipse 60% 70% at var(--mx,42%) var(--my,30%),var(--wall-lit),transparent 72%)}
-.featured{background:radial-gradient(ellipse 70% 80% at var(--mx,35%) var(--my,40%),var(--wall-lit),transparent 75%),var(--card)}
+.featured{background:radial-gradient(ellipse 70% 80% at var(--mx,35%) var(--my,40%),color-mix(in srgb,var(--wall-lit) 70%,transparent),transparent 75%),color-mix(in srgb,var(--card) 62%,transparent);backdrop-filter:blur(2px)}
 .mat{overflow:hidden}
 .hang{perspective:1200px}
 html.motion .frame{transition:none}
@@ -497,23 +497,23 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
   const hex=(h,a)=>{ h=h.replace('#',''); if(h.length===3) h=h.split('').map(x=>x+x).join(''); const n=parseInt(h,16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
   // 色票取自畫作：古銅金、天空藍、葉子綠、楓紅
   const palette=()=>[css('--accent')||'#86683a','#7fa8c4','#9fb38a','#c98a7a'];
-  const blobs=Array.from({length:5},(_,i)=>({x:Math.random(),y:Math.random(),r:.28+Math.random()*.22,
-    vx:(Math.random()-.5)*.00012,vy:(Math.random()-.5)*.0001,ph:Math.random()*6.28,c:i%4}));
-  const motes=Array.from({length:46},()=>({x:Math.random(),y:Math.random(),s:.6+Math.random()*1.6,
-    v:.00004+Math.random()*.00012,dr:(Math.random()-.5)*.00006,ph:Math.random()*6.28}));
+  const blobs=Array.from({length:7},(_,i)=>({x:Math.random(),y:Math.random(),r:.20+Math.random()*.18,
+    vx:(Math.random()-.5)*.00034,vy:(Math.random()-.5)*.00028,ph:Math.random()*6.28,c:i%4}));
+  const motes=Array.from({length:90},()=>({x:Math.random(),y:Math.random(),s:1+Math.random()*2.2,
+    v:.00008+Math.random()*.0002,dr:(Math.random()-.5)*.00006,ph:Math.random()*6.28}));
   function size(){ dpr=Math.min(window.devicePixelRatio||1,1.5); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
   size(); addEventListener('resize',size);
   let last=performance.now(), running=true;
   function frame(now){
     const dt=Math.min(64,now-last); last=now;
     ctx.clearRect(0,0,W,H);
-    const dark=isDark(), pal=palette(), A=dark?.08:.17;
+    const dark=isDark(), pal=palette(), A=dark?.16:.30;
     const scrollShift=(scrollY||0)*.00008;
     ctx.globalCompositeOperation=dark?'screen':'multiply';
     for(const b of blobs){
-      if(!reduce){ b.x+=b.vx*dt; b.y+=b.vy*dt; b.ph+=dt*.0003;
+      if(!reduce){ b.x+=b.vx*dt; b.y+=b.vy*dt; b.ph+=dt*.0008;
         if(b.x<-.2||b.x>1.2) b.vx*=-1; if(b.y<-.2||b.y>1.2) b.vy*=-1; }
-      const R=Math.max(W,H)*b.r*(1+.06*Math.sin(b.ph));
+      const R=Math.max(W,H)*b.r*(1+.14*Math.sin(b.ph));
       const cx=b.x*W, cy=(b.y-scrollShift%1)*H;
       const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R);
       g.addColorStop(0,hex(pal[b.c].startsWith('#')?pal[b.c]:'#86683a',A));
@@ -527,8 +527,10 @@ nav.plan .new{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;colo
       if(!reduce){ m.y-=m.v*dt; m.x+=m.dr*dt+Math.sin(m.ph)*.00002*dt; m.ph+=dt*.0012;
         if(m.y<-.02){ m.y=1.02; m.x=Math.random(); } if(m.x<0) m.x=1; if(m.x>1) m.x=0; }
       const tw=.35+.35*Math.sin(m.ph*1.7);
-      ctx.fillStyle=hex(dust,(dark?.55:.55)*tw);
-      ctx.beginPath(); ctx.arc(m.x*W,m.y*H,m.s,0,6.283); ctx.fill();
+      const px=m.x*W, py=m.y*H, al=(dark?.8:.7)*tw;
+      const gl=ctx.createRadialGradient(px,py,0,px,py,m.s*4); gl.addColorStop(0,hex(dust,al*.45)); gl.addColorStop(1,hex(dust,0));
+      ctx.fillStyle=gl; ctx.fillRect(px-m.s*4,py-m.s*4,m.s*8,m.s*8);
+      ctx.fillStyle=hex(dust,al); ctx.beginPath(); ctx.arc(px,py,m.s,0,6.283); ctx.fill();
     }
     if(running && !reduce) requestAnimationFrame(frame);
   }
