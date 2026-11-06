@@ -1,0 +1,7 @@
+# 原始高解析檔與工具，不放上網站
+_source/
+
+# 系統檔
+.DS_Store
+Thumbs.db
+__pycache__/
